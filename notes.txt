@@ -1,0 +1,49 @@
+register are cpu internal storage unit:
+	rax,eax(32bit) - temporary register; when we call a syscal, rax must contain syscall number
+	rdx,ebx(32bit) - used to pass 3rd argument to functions
+	rdi,ecx(32bit) - used to pass 1st argument to functions
+	rsi,edx(32bit) - pointer used to pass 2nd argument to functions
+
+We have 16 general-purpose registers for temporary data storage. They are RAX, RBX, RCX, RDX, RDI, RSI, RBP, RSP and R8-R15. It’s too few for serious applications.	
+
+Section - every assembly program consists from sections. There are following sections:
+	data - section is used for declaring initialized data or constants
+	bss - section is used for declaring non initialized variables
+	text - section is used for code
+
+nasm -f elf program.asm | ld -m elf_i386 program.o -o program
+
+The fundamental data types are bytes, words, doublewords, quadwords, and double quadwords. A byte is eight bits, a word is 2 bytes, a doubleword is 4 bytes, a quadword is 8 bytes and a double quadword is 16 bytes (128 bits).
+
+DB, DW, DD, DQ, DT, DO, DY and DZ - are used for declaring initialized data.
+The cmp instruction just compares 2 values, but doesn’t affect them and doesn’t execute anything depend on result of comparison. 
+
+the register who are not passed to cpu will be on stack
+
+push argument - increments stack pointer (RSP) and stores argument in location pointed by stack pointer
+pop argument - copied data to argument from location pointed by stack pointer
+
+organisation of command line arguments on stack( first argument is program name ): 
+	[rsp] - top of stack will contain arguments count.
+    [rsp + 8] - will contain argv[0]
+    [rsp + 16] - will contain argv[1]
+    and so on...
+
+$ - returns position in memory of string where $ defined
+$$ - returns position in memory of current section start    
+
+arguments should have a positive offset from the base pointer (after it's filled with the stack pointer value), since if they are located in the caller function and the stack grows toward lower addresses
+
+stack frame pointer is used to point to parameters passed or local parameters of the sub routine .
+
+The lea is getting the address of a string stored in the "code" segement
+
+When you invoke a system call the kernel will immediately suspend execution of your program. It will then contact the necessary drivers needed to perform the task you requested on the hardware and then return control back to your program.
+
+To execute a program that is loaded in memory, we use the global label _start: to tell the operating system where in memory our program can be found and executed. Memory is then accessed sequentially following the program logic which determines the next address to be accessed. The kernel jumps to that address in memory and executes it.
+
+Calling sys_exit at the end of all our programs will mean the kernel knows exactly when to terminate the process and return memory back to the general pool thus avoiding an error.
+
+f we want to be able to use the subroutine from anywhere in the code we would have to write some logic to determine where in the code we had jumped from and where we should jump back to.If we use CALL and RET however, assembly handles this problem for us using something called the stack.
+
+Passing arguments to your program from the command line is as easy as popping them off the stack in NASM. When we run our program, any passed arguments are loaded onto the stack in reverse order. The name of the program is then loaded onto the stack and lastly the total number of arguments is loaded onto the stack. The last two stack items for a NASM compiled program are always the name of the program and the number of passed arguments.
